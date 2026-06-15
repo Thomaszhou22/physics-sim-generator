@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔬 Physics Sim Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/styles.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'sim-dark': '#0f0f23',
+            'sim-card': '#1a1a2e',
+            'sim-border': '#2a2a4a',
+            'sim-accent': '#7c3aed',
+            'sim-accent-light': '#a78bfa',
+            'sim-success': '#10b981',
+            'sim-danger': '#ef4444',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #0f0f23; }
+  </style>
+</head>
+<body class="text-gray-100 min-h-screen">
+
+  <!-- 顶部标题栏 -->
+  <header class="border-b border-sim-border bg-sim-card/50 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold flex items-center gap-2">
+        <span>🔬</span>
+        <span>Physics Sim Generator</span>
+      </h1>
+      <button id="configToggle" class="text-sm px-4 py-2 rounded-lg bg-sim-border hover:bg-sim-accent transition flex items-center gap-2">
+        <span>⚙️</span>
+        <span id="configToggleText">API 配置</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 配置面板 -->
+  <div id="configPanel" class="config-panel border-b border-sim-border bg-sim-card/30 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">⚙️ API 配置</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Provider -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Provider</label>
+          <select id="provider" class="w-full bg-sim-dark border border-sim-border rounded-lg px-3 py-2 focus:border-sim-accent focus:outline-none">
+            <option value="gemini">Google Gemini</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="glm">智谱 GLM</option>
+            <option value="qwen">通义千问 Qwen</option>
+            <option value="openai">OpenAI</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <!-- API Key -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">API Key</label>
+          <input id="apiKey" type="password" placeholder="sk-..." class="w-full bg-sim-dark border border-sim-border rounded-lg px-3 py-2 focus:border-sim-accent focus:outline-none">
+        </div>
+        <!-- Base URL -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Base URL <span class="text-gray-600">(可选)</span></label>
+          <input id="baseUrl" type="text" placeholder="https://api.example.com" class="w-full bg-sim-dark border border-sim-border rounded-lg px-3 py-2 focus:border-sim-accent focus:outline-none">
+        </div>
+        <!-- Model -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Model</label>
+          <input id="model" type="text" placeholder="模型名称" class="w-full bg-sim-dark border border-sim-border rounded-lg px-3 py-2 focus:border-sim-accent focus:outline-none">
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">💡 配置自动保存在浏览器本地，不会上传到服务器。</p>
+    </div>
+  </div>
+
+  <!-- 主内容区 -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- 左侧：输入区 -->
+      <div class="space-y-4">
+        <!-- 快捷模板 -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">快捷模板</label>
+          <div class="flex flex-wrap gap-2">
+            <button class="template-btn text-sm px-3 py-1.5 rounded-lg bg-sim-card border border-sim-border hover:border-sim-accent hover:bg-sim-accent/20" data-prompt="模拟一个抛体运动：物体以可调的初速度和角度斜向上抛出，显示轨迹、速度分量、最大高度和射程。包含空气阻力可选开关。">🎯 抛体运动</button>
+            <button class="template-btn text-sm px-3 py-1.5 rounded-lg bg-sim-card border border-sim-border hover:border-sim-accent hover:bg-sim-accent/20" data-prompt="模拟一个单摆运动：摆长可调，初始角度可调，重力加速度可调。显示实时角度、角速度、周期。显示能量守恒（动能+势能）。">pendulum 单摆</button>
+            <button class="template-btn text-sm px-3 py-1.5 rounded-lg bg-sim-card border border-sim-border hover:border-sim-accent hover:bg-sim-accent/20" data-prompt="模拟一个弹簧振子：弹簧劲度系数k可调，质量m可调，初始位移可调。显示位移-时间图，速度-时间图。">弹簧振子</button>
+            <button class="template-btn text-sm px-3 py-1.5 rounded-lg bg-sim-card border border-sim-border hover:border-sim-accent hover:bg-sim-accent/20" data-prompt="模拟两个小球的弹性碰撞和完全非弹性碰撞：质量可调，初速度可调。显示碰撞前后的动量和能量。可切换碰撞类型。">💥 碰撞</button>
+            <button class="template-btn text-sm px-3 py-1.5 rounded-lg bg-sim-card border border-sim-border hover:border-sim-accent hover:bg-sim-accent/20" data-prompt="模拟一个小物块从斜面上滑下：斜面角度可调，摩擦系数可调，质量可调。显示受力分析（重力、支持力、摩擦力）和加速度。">📐 斜面滑块</button>
+            <button class="template-btn text-sm px-3 py-1.5 rounded-lg bg-sim-card border border-sim-border hover:border-sim-accent hover:bg-sim-accent/20" data-prompt="模拟一个简单的串联电路：电池电压可调，电阻可调，开关控制。显示电流、电压分布。可选并联模式。">⚡ 电路</button>
+            <button class="template-btn text-sm px-3 py-1.5 rounded-lg bg-sim-card border border-sim-border hover:border-sim-accent hover:bg-sim-accent/20" data-prompt="模拟两个点波源的水波干涉：波长可调，波源间距可调，频率可调。显示干涉条纹和加强/减弱区域。">🌊 波的干涉</button>
+            <button class="template-btn text-sm px-3 py-1.5 rounded-lg bg-sim-card border border-sim-border hover:border-sim-accent hover:bg-sim-accent/20" data-prompt="模拟凸透镜成像：物距可调，焦距可调。显示光路图（三条特征光线），像的位置、大小、正倒、虚实。">🔍 透镜成像</button>
+          </div>
+        </div>
+
+        <!-- 输入框 -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">描述你想要的物理场景</label>
+          <textarea id="promptInput" rows="6" placeholder="描述一个物理场景，例如：一个小球从斜面上滑下，斜面角度可调，有摩擦力，显示受力分析和速度变化" class="w-full bg-sim-card border border-sim-border rounded-xl px-4 py-3 focus:border-sim-accent focus:outline-none resize-none scrollbar-thin text-sm"></textarea>
+        </div>
+
+        <!-- 生成按钮 -->
+        <button id="generateBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-sim-accent to-sim-accent-light text-white font-semibold text-lg hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          <span id="generateBtnText">✨ 生成物理模拟</span>
+          <div id="loadingDots" class="hidden flex gap-1">
+            <span class="loading-dot w-2 h-2 bg-white rounded-full"></span>
+            <span class="loading-dot w-2 h-2 bg-white rounded-full"></span>
+            <span class="loading-dot w-2 h-2 bg-white rounded-full"></span>
+          </div>
+        </button>
+
+        <!-- 状态提示 -->
+        <div id="statusBar" class="hidden text-sm rounded-lg px-4 py-3"></div>
+      </div>
+
+      <!-- 右侧：预览区 -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm text-gray-400">预览区</h3>
+          <div id="previewActions" class="hidden flex gap-2">
+            <button id="saveBtn" class="text-sm px-4 py-1.5 rounded-lg bg-sim-success/20 border border-sim-success/40 text-sim-success hover:bg-sim-success/30 transition flex items-center gap-1">
+              <span>💾</span> 保存
+            </button>
+            <button id="discardBtn" class="text-sm px-4 py-1.5 rounded-lg bg-sim-danger/20 border border-sim-danger/40 text-sim-danger hover:bg-sim-danger/30 transition flex items-center gap-1">
+              <span>🗑️</span> 丢弃
+            </button>
+          </div>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-sim-border bg-sim-card" style="height: 600px;">
+          <iframe id="previewFrame" class="preview-frame w-full h-full" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+        <p id="previewHint" class="text-xs text-gray-600 text-center">生成的模拟将在此处预览</p>
+      </div>
+    </div>
+
+    <!-- 底部：已保存的模拟列表 -->
+    <div class="mt-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold flex items-center gap-2">📁 已保存的模拟</h2>
+        <button id="refreshSaved" class="text-sm text-gray-400 hover:text-sim-accent transition flex items-center gap-1">
+          <span>🔄</span> 刷新
+        </button>
+      </div>
+      <div id="savedList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <p class="text-gray-600 text-sm col-span-full text-center py-8">暂无保存的模拟</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-sim-border mt-12 py-6 text-center text-sm text-gray-600">
+    <p>🔬 Physics Sim Generator — AI 驱动的物理模拟生成器</p>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

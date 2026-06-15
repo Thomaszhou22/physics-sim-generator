@@ -1,0 +1,67 @@
+/* 自定义样式补充 Tailwind */
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+}
+
+/* 加载动画 */
+.loading-dot {
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+.loading-dot:nth-child(1) { animation-delay: -0.32s; }
+.loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* iframe 预览 */
+.preview-frame {
+  background: #1a1a2e;
+  transition: opacity 0.3s;
+}
+
+/* 模板按钮悬浮效果 */
+.template-btn {
+  transition: all 0.2s ease;
+}
+.template-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* 配置面板折叠动画 */
+.config-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.config-panel.open {
+  max-height: 600px;
+}
+
+/* 已保存项目卡片 */
+.saved-card {
+  transition: all 0.2s ease;
+}
+.saved-card:hover {
+  transform: translateY(-2px);
+}

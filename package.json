@@ -1,0 +1,12 @@
+{
+  "name": "physics-sim-generator",
+  "version": "1.0.0",
+  "description": "AI 驱动的物理模拟生成器 - 输入描述，自动生成可交互的物理仿真",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
